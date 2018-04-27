@@ -96,6 +96,10 @@ var WordView = Backbone.View.extend({
 		if(this.model.get('x') + word_width > $(window).width()) {
 			this.model.set({x:$(window).width() - word_width});
 		}
+		var self = this;
+		$(window).resize(function() {
+			self.model.set({ x: $(window).width() - word_width });
+		});
 		for(var i = 0;i < string.length;i++) {
 			$(this.el)
 				.append($('<div>')
