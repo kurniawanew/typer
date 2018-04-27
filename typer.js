@@ -25,6 +25,7 @@ var ControlView = Backbone.View.extend({
 						self.clearWords();
 						self.model.set('run', true);
 						$('body').find('input').focus()
+						$('#scoreText').text('0');
 					}),
 				$('<button>')
 					.addClass('btn btn-danger')
@@ -36,6 +37,7 @@ var ControlView = Backbone.View.extend({
 					.click(function() {
 						self.model.set('run', false);
 						self.clearWords();
+						$('#scoreText').text('0');
 					}),
 				$('<button>')
 					.addClass('btn btn-warning')
@@ -66,11 +68,6 @@ var ControlView = Backbone.View.extend({
 				position: 'absolute'
 			})
 		);
-
-		this.render();
-	},
-	render: function() {
-		
 	},
 	clearWords: function() {
 		var words_to_be_removed = [];
@@ -84,6 +81,23 @@ var ControlView = Backbone.View.extend({
 		for (var i = 0; i < words_to_be_removed.length; i++) {
 			words.remove(words_to_be_removed[i]);
 		}
+	}
+});
+
+var ScoreView = Backbone.View.extend({
+	initialize: function() {
+		$(this.el).append(
+			$('<div>').append(
+				$('<strong>').html('Score: '),
+				$('<strong>').html('0')
+					.attr('id', 'scoreText')
+			)
+			.css({
+				top: '0',
+				left: '0',
+				'font-size': '20px'
+			})
+		);
 	}
 });
 
@@ -116,7 +130,6 @@ var WordView = Backbone.View.extend({
 		}
 		
 		this.listenTo(this.model, 'remove', this.remove);
-		this.listenTo(this.model, 'reset', this.reset);
 		
 		this.render();
 	},
@@ -171,6 +184,7 @@ var TyperView = Backbone.View.extend({
 						if(typed_string.length == string.length) {
 							$(this).val('');
 						}
+						$('#scoreText').text(parseInt($('#scoreText').text())+1);
 					} else {
 						word.set({highlight:0});
 					}
@@ -188,6 +202,10 @@ var TyperView = Backbone.View.extend({
 					})
 					.append(text_input)))
 			.append(new ControlView({
+				el: wrapper,
+				model: self.model
+			}))
+			.append(new ScoreView({
 				el: wrapper,
 				model: self.model
 			}));
