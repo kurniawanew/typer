@@ -149,7 +149,7 @@ var Typer = Backbone.Model.extend({
 	},
 
 	start: function() {
-		var animation_delay = 0; // set to 0 for non laggy animation
+		var animation_delay = 10; // set to 10 for non laggy animation
 		var self = this;
 		setInterval(function() {
 			self.iterate();
