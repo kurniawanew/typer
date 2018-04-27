@@ -173,21 +173,32 @@ var TyperView = Backbone.View.extend({
 				width:'80%',
 				'margin-bottom':'10px',
 				'z-index':'1000'
-			}).keyup(function() {
+			}).keyup(function(e) {
 				var words = self.model.get('words');
+				var isWrong = false;
+				var key = e.keyCode || e.charCode;
+				console.log(key);
 				for(var i = 0;i < words.length;i++) {
 					var word = words.at(i);
 					var typed_string = $(this).val();
 					var string = word.get('string');
-					if(string.toLowerCase().indexOf(typed_string.toLowerCase()) == 0) {
+					if(string.toLowerCase().indexOf(typed_string.toLowerCase()) == 0 && $(this).val() != "") {
 						word.set({highlight:typed_string.length});
 						if(typed_string.length == string.length) {
 							$(this).val('');
 						}
-						$('#scoreText').text(parseInt($('#scoreText').text())+1);
+						if (key != 8 && key != 46) {
+							$('#scoreText').text(parseInt($('#scoreText').text()) + 1);
+						}
+						isWrong = false;
+						break;
 					} else {
 						word.set({highlight:0});
+						isWrong = true;
 					}
+				}
+				if (isWrong && (key != 8 && key != 46)) {
+					$('#scoreText').text(parseInt($('#scoreText').text()) - 1);
 				}
 			});
 		
