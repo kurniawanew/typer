@@ -8,6 +8,85 @@ var Words = Backbone.Collection.extend({
 	model:Word
 });
 
+var ControlView = Backbone.View.extend({
+	initialize: function() {
+		var self = this;
+		$(this.el).append(
+			$('<div>').append(
+				$('<button>')
+					.addClass('btn btn-success')
+					.attr('type', 'button')
+					.html('Start')
+					.css({
+						margin: '0 5px'
+					})
+					.click(function () {
+						self.model.set('run', false);
+						self.clearWords();
+						self.model.set('run', true);
+						$('body').find('input').focus()
+					}),
+				$('<button>')
+					.addClass('btn btn-danger')
+					.attr('type', 'button')
+					.html('Stop')
+					.css({
+						margin: '0 5px'
+					})
+					.click(function() {
+						self.model.set('run', false);
+						self.clearWords();
+					}),
+				$('<button>')
+					.addClass('btn btn-warning')
+					.attr('type', 'button')
+					.html('Pause')
+					.css({
+						margin: '0 5px'
+					})
+					.click(function () {
+						self.model.set('run', false);
+					}),
+				$('<button>')
+					.addClass('btn btn-info')
+					.attr('type', 'button')
+					.html('Resume')
+					.css({
+						margin: '0 5px'
+					})
+					.click(function () {
+						self.model.set('run', true);
+						$('body').find('input').focus()
+					})
+			)
+			.css({
+				width: '100%',
+				'text-align': 'center',
+				'z-index': '1000',
+				position: 'absolute'
+			})
+		);
+
+		this.render();
+	},
+	render: function() {
+		
+	},
+	clearWords: function() {
+		var words_to_be_removed = [];
+		var words = this.model.get('words');
+		for (var i = 0; i < words.length; i++) {
+			var word = words.at(i);
+			word.move();
+			words_to_be_removed.push(word);
+		}
+
+		for (var i = 0; i < words_to_be_removed.length; i++) {
+			words.remove(words_to_be_removed[i]);
+		}
+	}
+});
+
 var WordView = Backbone.View.extend({
 	initialize: function() {
 		$(this.el).css({position:'absolute'});
@@ -33,6 +112,7 @@ var WordView = Backbone.View.extend({
 		}
 		
 		this.listenTo(this.model, 'remove', this.remove);
+		this.listenTo(this.model, 'reset', this.reset);
 		
 		this.render();
 	},
@@ -102,7 +182,11 @@ var TyperView = Backbone.View.extend({
 					.submit(function() {
 						return false;
 					})
-					.append(text_input)));
+					.append(text_input)))
+			.append(new ControlView({
+				el: wrapper,
+				model: self.model
+			}));
 		
 		text_input.css({left:((wrapper.width() - text_input.width()) / 2) + 'px'});
 		text_input.focus();
@@ -139,6 +223,7 @@ var Typer = Backbone.Model.extend({
 		words:new Words(),
 		min_speed:1,
 		max_speed:5,
+		run: false
 	},
 	
 	initialize: function() {
@@ -152,7 +237,9 @@ var Typer = Backbone.Model.extend({
 		var animation_delay = 10; // set to 10 for non laggy animation
 		var self = this;
 		setInterval(function() {
-			self.iterate();
+			if(self.get('run')) {
+				self.iterate();
+			}
 		},animation_delay);
 	},
 	
